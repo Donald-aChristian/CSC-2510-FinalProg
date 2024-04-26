@@ -28,7 +28,25 @@ do
 done
 
 #debug statment
-echo $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID )
+#echo $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID )
+
+#another interation variable
+intIter=0
+#getting length of array of software we need to intall to know how many things to install
+intlength=$(echo ${strCurledURL} | jq -r .[${intIteration}].softwarePackages 'length' )
+#debugstatment
+echo ${intlength}
+
+#loop to get the items needed to install and install them
+while [ "$intIter" -lt "$intlength" ];
+do
+
+strToInstall=$(echo ${strCurledURL} | jq -r.[${intIteration}].softwarePackages.[${intIter}].install)
+#debugstatment
+echo ${strToInstall}
+
+((intIter++))
+done
 
 
 
