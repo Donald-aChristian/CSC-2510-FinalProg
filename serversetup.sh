@@ -18,5 +18,16 @@ strTicketID=$2
 #echo ${strIP}
 #echo ${strTicketID}
 
+#iteration value for while loop
+intIteration=0
+
+#while loop to find the ticket we need information from
+while [ $1 != $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID ) ];
+do
+((intIteration++))
+done
+
+
+
 
 
