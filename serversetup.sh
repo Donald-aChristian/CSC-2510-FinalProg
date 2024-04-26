@@ -52,6 +52,25 @@ echo ${strToInstall}
 ((intIter++))
 done
 
+#another interation value
+intIter2=0
+
+#Holds the array of additional configurations to be done to the server
+strAddCon=$(echo ${strCurledURL} | jq -r .[${intIteration}].additionalConfigs )
+
+#gets length of the config array for while loop
+intAddlength=$(echo ${strAddCon} | jq 'length' )
+
+#loops through all the aditional conditions and does them
+while [ "$intIter2" -lt "intAddlength" ];
+do
+#gets the configuration to do
+strToDo=$(echo ${strAddCon} | jq -r .[${intIter2}] )
+#does the configuration command
+$strToDo
+
+((intIter2++))
+done
 
 
 
