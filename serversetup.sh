@@ -27,6 +27,9 @@ do
 ((intIteration++))
 done
 
+#debug statment
+echo $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID )
+
 
 
 
