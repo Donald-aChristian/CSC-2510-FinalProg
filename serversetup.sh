@@ -33,17 +33,21 @@ done
 #another interation variable
 intIter=0
 #getting length of array of software we need to intall to know how many things to install
-intlength=$(echo ${strCurledURL} | jq -r .[${intIteration}].softwarePackages 'length' )
+strSoftware=$(echo ${strCurledURL} | jq -r .[${intIteration}].softwarePackages )
+#debug
+#echo ${strSoftware}
+intlength=$(echo ${strSoftware} | jq 'length' )
 #debugstatment
-echo ${intlength}
+#echo ${intlength}
 
 #loop to get the items needed to install and install them
 while [ "$intIter" -lt "$intlength" ];
 do
 
-strToInstall=$(echo ${strCurledURL} | jq -r.[${intIteration}].softwarePackages.[${intIter}].install)
+strToInstall=$(echo ${strSoftware} | jq -r .[${intIter}].install)
 #debugstatment
 echo ${strToInstall}
+
 
 ((intIter++))
 done
