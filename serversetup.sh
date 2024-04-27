@@ -18,6 +18,25 @@ strTicketID=$2
 #echo ${strIP}
 #echo ${strTicketID}
 
+#getting information to be put into the log file
+strSDate=$(echo ${strCurledURL} | jq -r .submissionDate)
+strRequestor=$(echo ${strCurledURL} | jq -r .requestor)
+strConfig=$(echo ${strCurledURL} | jq -r .standardConfig)
+strHostNamee=$(hostname)
+
+#debugstatment
+echo ${strSDate}
+echo ${strRequestor}
+echo ${strConfig}
+
+#makes the directory to store the logs of what all is done here
+mkdir "configurationLogs"
+echo "TicketID: $2" >> "configurationLogs/$2.log"
+echo "Requestor: $strRequestor" >> "configurationLogs/$2.log"
+echo "External IP Address: $1" >> "configurationLogs/$2.log"
+echo "Hostname: $strHostName" >> "configurationLogs/$2.log"
+echo "Standard Configuration: $strConfig" >> "configurationLogs/$2.log"
+
 #iteration value for while loop
 intIteration=0
 
@@ -45,9 +64,13 @@ while [ "$intIter" -lt "$intlength" ];
 do
 
 strToInstall=$(echo ${strSoftware} | jq -r .[${intIter}].install)
+strSP=$(echo ${strSoftware} | jq -r .[${intIter}].name)
 #debugstatment
-echo ${strToInstall}
+#echo ${strToInstall}
 
+sudo apt-get install ${strToInstall}
+
+echo "softwarePackage - $strSP" >> "configurationLogs/$2.log"
 
 ((intIter++))
 done
@@ -66,12 +89,33 @@ while [ "$intIter2" -lt "intAddlength" ];
 do
 #gets the configuration to do
 strToDo=$(echo ${strAddCon} | jq -r .[${intIter2}] )
+strConName=$(echo ${strAddCon} | jq -r .[${intIter2}].name )
 #does the configuration command
 $strToDo
+
+echo "additionalConfig - $strConName" >> "configurationLogs/$2.log"
 
 ((intIter2++))
 done
 
+#another interation variable for a loop
+intIter3=0
+
+while [ "$intIter3"  -lt "$intlength" ];
+do
+#getting software package name
+strSP=$(echo ${strSoftware} | jq -r .[${intIter}].name)
+#checking version of software package installed and outputting it to log file
+strVer=$(--version $strSP)
+echo "Version Check - $strVer" >> "configurationLogs/$2.log"
+
+((intIter3++))
+done
+
+strfinalURL=$(curl "https://www.swollenhippo.com/ServiceNow/systems/devTickets/completed.php?TicketID=$2" | jq -r .outcome )
+echo $strfinalURL >> "configurationLogs/$2.log"
+
+echo "Completion Date: +%d-%b-%y " >> "configurationLogs/$2.log"
 
 
 
