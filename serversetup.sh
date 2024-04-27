@@ -118,7 +118,7 @@ done
 strfinalURL=$(curl "https://www.swollenhippo.com/ServiceNow/systems/devTickets/completed.php?TicketID=$2" | jq -r .outcome )
 echo $strfinalURL >> "configurationLogs/$2.log"
 
-strfinishdate="Date +%d-%b-%Y"
+strfinishdate=Date +"%d-%b-%Y"
 
 echo "Completion Date: $strfinishdate " >> "configurationLogs/$2.log"
 
