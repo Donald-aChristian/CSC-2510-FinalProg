@@ -18,18 +18,27 @@ strTicketID=$2
 #echo ${strIP}
 #echo ${strTicketID}
 
+#iteration value for while loop
+intIteration=0
+
+#while loop to find the ticket we need information from
+while [ $2 != $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID ) ];
+do
+((intIteration++))
+done
+
 #getting information to be put into the log file
-strSDate=$(echo ${strCurledURL} | jq -r .submissionDate)
-strRequestor=$(echo ${strCurledURL} | jq -r .requestor)
-strConfig=$(echo ${strCurledURL} | jq -r .standardConfig)
+strSDate=$(echo ${strCurledURL} | jq -r .[${intIteration}].submissionDate)
+strRequestor=$(echo ${strCurledURL} | jq -r  .[${intIteration}].requestor)
+strConfig=$(echo ${strCurledURL} | jq -r  .[${intIteration}].standardConfig)
 strHostNamee=$(hostname)
 
 #debugstatment
-echo ${strSDate}
-echo ${strRequestor}
-echo ${strConfig}
+#echo ${strSDate}
+#echo ${strRequestor}
+#echo ${strConfig}
 
-#makes the directory to store the logs of what all is done here
+#making the directory and log file
 mkdir "configurationLogs"
 echo "TicketID: $2" >> "configurationLogs/$2.log"
 echo "Requestor: $strRequestor" >> "configurationLogs/$2.log"
@@ -37,14 +46,6 @@ echo "External IP Address: $1" >> "configurationLogs/$2.log"
 echo "Hostname: $strHostName" >> "configurationLogs/$2.log"
 echo "Standard Configuration: $strConfig" >> "configurationLogs/$2.log"
 
-#iteration value for while loop
-intIteration=0
-
-#while loop to find the ticket we need information from
-while [ $1 != $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID ) ];
-do
-((intIteration++))
-done
 
 #debug statment
 #echo $(echo ${strCurledURL} | jq -r .[${intIteration}].ticketID )
@@ -85,13 +86,13 @@ strAddCon=$(echo ${strCurledURL} | jq -r .[${intIteration}].additionalConfigs )
 intAddlength=$(echo ${strAddCon} | jq 'length' )
 
 #loops through all the aditional conditions and does them
-while [ "$intIter2" -lt "intAddlength" ];
+while [ "$intIter2" -lt "$intAddlength" ];
 do
 #gets the configuration to do
-strToDo=$(echo ${strAddCon} | jq -r .[${intIter2}] )
+strToDo=$(echo ${strAddCon} | jq -r .[${intIter2}].config )
 strConName=$(echo ${strAddCon} | jq -r .[${intIter2}].name )
 #does the configuration command
-$strToDo
+${strToDo}
 
 echo "additionalConfig - $strConName" >> "configurationLogs/$2.log"
 
@@ -104,10 +105,12 @@ intIter3=0
 while [ "$intIter3"  -lt "$intlength" ];
 do
 #getting software package name
-strSP=$(echo ${strSoftware} | jq -r .[${intIter}].name)
+strSP=$(echo ${strSoftware} | jq -r .[${intIter}].install)
 #checking version of software package installed and outputting it to log file
-strVer=$(--version $strSP)
-echo "Version Check - $strVer" >> "configurationLogs/$2.log"
+strVer=$(apt show ${strSP})
+echo ${strVer} >> "Version.txt"
+strVersion=$(grep -h "Version" Version.txt)
+echo "Version Check - $strVersion" >> "configurationLogs/$2.log"
 
 ((intIter3++))
 done
@@ -115,7 +118,9 @@ done
 strfinalURL=$(curl "https://www.swollenhippo.com/ServiceNow/systems/devTickets/completed.php?TicketID=$2" | jq -r .outcome )
 echo $strfinalURL >> "configurationLogs/$2.log"
 
-echo "Completion Date: +%d-%b-%y " >> "configurationLogs/$2.log"
+strfinishdate="Date +%d-%b-%Y"
+
+echo "Completion Date: $strfinishdate " >> "configurationLogs/$2.log"
 
 
 
